@@ -41,7 +41,6 @@ if __name__ == '__main__':
             prefix_heatmaps = prefix_heatmaps + html_heatmap(prefix_words, R_words) + "<br>"  # create heatmap
             browser.display_html(prefix_heatmaps)  # display heatmap
 
-
     # validation mode for nap
     elif not args.explain:
 

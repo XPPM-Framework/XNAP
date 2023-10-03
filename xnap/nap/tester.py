@@ -110,7 +110,7 @@ def test(args, preprocessor):
                     prediction += predicted_event
 
                     if predicted_event == preprocessor.data_structure['support']['end_process_instance']:
-                        print('! predicted, end of process instance ... \n')
+                        # print('! predicted, end of process instance ... \n')
                         break
 
                 output = []

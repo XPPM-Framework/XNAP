@@ -106,7 +106,9 @@ class Preprocessor(object):
 
         file = open(self.data_structure['support']['data_dir'], 'r')
         reader = csv.reader(file, delimiter=';', quotechar='|')
-        next(reader, None)
+        if len(next(reader, None)) == 1:
+            reader = csv.reader(file)
+            next(reader, None)
 
         for event in reader:
 
