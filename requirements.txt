@@ -1,4 +1,5 @@
-matplotlib~=3.3.3
-arrow~=0.17.0
-scikit-learn~=0.23.2
-tensorflow~=2.3.0
+matplotlib=3.3.*
+arrow=0.17.*
+scikit-learn=0.23.*
+tensorflow=2.3.0
+numpy=1.18.5
