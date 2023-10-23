@@ -1,11 +1,11 @@
-import xnap.config as config
-import xnap.utils as utils
-from xnap.explanation.LSTM.LSTM_bidi import *
-from xnap.explanation.util.heatmap import html_heatmap
-import xnap.explanation.util.browser as browser
-from xnap.nap.preprocessor import Preprocessor as Preprocessor
-import xnap.nap.tester as test
-import xnap.nap.trainer as train
+import config as config
+import utils as utils
+from explanation.LSTM.LSTM_bidi import *
+from explanation.util.heatmap import html_heatmap
+import explanation.util.browser as browser
+from nap.preprocessor import Preprocessor as Preprocessor
+import nap.tester as test
+import nap.trainer as train
 import numpy as np
 
 if __name__ == '__main__':

@@ -1,4 +1,7 @@
 from __future__ import division
+
+from pathlib import Path
+
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 import csv
@@ -68,8 +71,9 @@ def test(args, preprocessor):
     prediction_size = 1
     data_set_name = args.data_set.split('.csv')[0]
     result_dir_generic = './' + args.task + args.result_dir[1:] + data_set_name
-    result_dir_fold = result_dir_generic + "_%d%s" % (
-        preprocessor.data_structure['support']['iteration_cross_validation'], ".csv")
+    result_dir_fold = Path(result_dir_generic + "_%d%s" % (
+        preprocessor.data_structure['support']['iteration_cross_validation'], ".csv"))
+    result_dir_fold.parent.mkdir(parents=True, exist_ok=True)
 
     # start prediction
     with open(result_dir_fold, 'w') as result_file_fold:

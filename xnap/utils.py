@@ -1,6 +1,8 @@
 import argparse
 import sys
 import csv
+from pathlib import Path
+
 import sklearn
 import arrow
 import os
@@ -46,7 +48,9 @@ def str2bool(v):
 
 
 def clear_measurement_file(args):
-    open('./%s/results/output_%s.csv' % (args.task, args.data_set[:-4]), "w").close()
+    path = Path('./%s/results/output_%s.csv' % (args.task, args.data_set[:-4]))
+    if path.is_file():
+        open(path, "w").close()
 
 
 def get_output(args, preprocessor, _output):

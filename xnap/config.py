@@ -1,6 +1,6 @@
 import os
 import argparse
-import xnap.utils as utils
+import utils as utils
 
 
 def load():
