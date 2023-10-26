@@ -7,7 +7,6 @@ from sklearn.model_selection import KFold, ShuffleSplit
 
 
 class Preprocessor(object):
-
     data_structure = {
         'support': {
             'num_folds': 1,
@@ -51,7 +50,6 @@ class Preprocessor(object):
         }
     }
 
-
     def __init__(self, args):
 
         utils.llprint("Initialization ... \n")
@@ -62,10 +60,11 @@ class Preprocessor(object):
             int(round(
                 self.data_structure['meta']['num_process_instances'] / self.data_structure['support']['num_folds']))
 
-
         # add end marker of process instance
-        self.data_structure['data']['process_instances'] = list(map(lambda x: x + ['!'], self.data_structure['data']['process_instances']))
-        self.data_structure['meta']['max_length_process_instance'] = max(map(lambda x: len(x), self.data_structure['data']['process_instances']))
+        self.data_structure['data']['process_instances'] = list(
+            map(lambda x: x + ['!'], self.data_structure['data']['process_instances']))
+        self.data_structure['meta']['max_length_process_instance'] = max(
+            map(lambda x: len(x), self.data_structure['data']['process_instances']))
 
         # structures for predicting next activities
         self.data_structure['support']['event_labels'] = list(
@@ -92,7 +91,6 @@ class Preprocessor(object):
             self.set_indices_k_fold_validation()
         else:
             self.set_indices_split_validation(args)
-
 
     def get_sequences_from_eventlog(self):
         """
@@ -137,7 +135,6 @@ class Preprocessor(object):
 
         self.data_structure['meta']['num_process_instances'] += 1
 
-
     def set_training_set(self):
         """
         Set training set
@@ -162,7 +159,6 @@ class Preprocessor(object):
         self.data_structure['data']['train']['features_data'] = features_data
         self.data_structure['data']['train']['labels'] = labels
 
-
     def get_event_type_max_prob(self, predictions):
         """
         Get most likely activity from a probability distribution.
@@ -182,7 +178,6 @@ class Preprocessor(object):
 
         return event_type
 
-
     def get_event_type(self, index):
         """
         Get activity label for activity id.
@@ -192,7 +187,6 @@ class Preprocessor(object):
 
         return self.data_structure['support']['map_event_id_to_event_type'][index]
 
-
     def add_data_to_data_structure(self, values, structure):
         """
         Add data to general data structure.
@@ -201,7 +195,6 @@ class Preprocessor(object):
         """
 
         self.data_structure['data'][structure].append(values)
-
 
     def set_indices_k_fold_validation(self):
         """
@@ -214,8 +207,6 @@ class Preprocessor(object):
             self.data_structure['support']['train_index_per_fold'].append(train_indices)
             self.data_structure['support']['test_index_per_fold'].append(test_indices)
 
-
-
     def set_indices_split_validation(self, args):
         """
         Produces indices for split-validation.
@@ -227,7 +218,6 @@ class Preprocessor(object):
         for train_indices, test_indices in shuffle_split.split(self.data_structure['data']['process_instances']):
             self.data_structure['support']['train_index_per_fold'].append(train_indices)
             self.data_structure['support']['test_index_per_fold'].append(test_indices)
-
 
     def get_instances_of_fold(self, mode):
         """
@@ -244,14 +234,12 @@ class Preprocessor(object):
             process_instances_of_fold.append(self.data_structure['data']['process_instances'][value])
             event_ids_of_fold.append(self.data_structure['data']['ids_process_instances'][value])
 
-
         if mode == 'test':
             self.data_structure['data']['test']['process_instances'] = process_instances_of_fold
             self.data_structure['data']['test']['event_ids'] = event_ids_of_fold
             return
 
         return process_instances_of_fold, event_ids_of_fold
-
 
     def get_cropped_instances(self, process_instances):
         """
@@ -262,7 +250,6 @@ class Preprocessor(object):
 
         cropped_process_instances = []
         next_events = []
-
 
         for process_instance in process_instances:
             for i in range(0, len(process_instance)):
@@ -275,7 +262,6 @@ class Preprocessor(object):
 
         return cropped_process_instances, next_events
 
-
     def get_cropped_instance_label(self, prefix_size, process_instance):
         """
         Crops the next activity label out of a single process instance.
@@ -286,11 +272,10 @@ class Preprocessor(object):
 
         if prefix_size == len(process_instance) - 1:
             # end marker
-            return self.data_structure["support"]["end_process_instance"]
+            return str(self.data_structure["support"]["end_process_instance"])
         else:
             # label of next act
-            return process_instance[prefix_size]
-
+            return str(process_instance[prefix_size])
 
     def get_cropped_instance(self, prefix_size, process_instance):
         """
@@ -301,7 +286,6 @@ class Preprocessor(object):
         """
 
         return process_instance[:prefix_size]
-
 
     def get_data_tensor(self, cropped_process_instances, mode):
         """
@@ -322,14 +306,12 @@ class Preprocessor(object):
                 self.data_structure['meta']['max_length_process_instance'],
                 self.data_structure['meta']['num_features']), dtype=numpy.float32)
 
-
         for index, cropped_process_instance in enumerate(cropped_process_instances):
             for index_, activity in enumerate(cropped_process_instance):
-
-                data_set[index, index_, self.data_structure['support']['map_event_label_to_event_id'][activity]] = 1
+                data_set[
+                    index, index_, self.data_structure['support']['map_event_label_to_event_id'][str(activity)]] = 1
 
         return data_set
-
 
     def get_data_tensor_for_single_prediction(self, cropped_process_instance):
         """
@@ -344,7 +326,6 @@ class Preprocessor(object):
             'test')
 
         return data_set
-
 
     def get_label_matrix(self, cropped_process_instances, next_events):
         """
@@ -368,7 +349,6 @@ class Preprocessor(object):
 
         return label
 
-
     def get_random_process_instance(self, lower_bound, upper_bound):
         """
         Selects a random process instance from the complete event log.
@@ -387,20 +367,3 @@ class Preprocessor(object):
                 break
 
         return process_instances[rand]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

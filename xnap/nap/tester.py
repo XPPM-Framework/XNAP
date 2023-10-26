@@ -9,7 +9,7 @@ import xnap.utils as utils
 import numpy as np
 
 
-def test_prefix(args, preprocessor, process_instance, prefix_size):
+def test_prefix(args, preprocessor, process_instance, prefix_size, *, model_path: str = None):
     """
     Perform test for LRP.
 
@@ -26,10 +26,14 @@ def test_prefix(args, preprocessor, process_instance, prefix_size):
 
     # select the best model of the ten-fold cross-validation
     model_index = 8
-    model = load_model('%sca_%s_%s_%s.h5' % (
-                    args.model_dir,
-                    args.task,
-                    args.data_set[0:len(args.data_set) - 4], model_index))
+    if model_path is None:
+        model = load_model('%sca_%s_%s_%s.h5' % (
+                        args.model_dir,
+                        args.task,
+                        args.data_set[0:len(args.data_set) - 4], model_index))
+    else:
+        print(model_path)
+        model = load_model(model_path)
 
     cropped_process_instance = preprocessor.get_cropped_instance(prefix_size, process_instance)
     cropped_process_instance_label = preprocessor.get_cropped_instance_label(prefix_size, process_instance)
@@ -47,8 +51,6 @@ def test_prefix(args, preprocessor, process_instance, prefix_size):
 
     test_data_reshaped = test_data.reshape(-1, test_data.shape[2])
     cropped_process_instance_label_class = preprocessor.data_structure['support']['map_event_type_to_event_id'][cropped_process_instance_label]
-
-
 
     return prediction_class, prediction, cropped_process_instance_label_class, cropped_process_instance_label, cropped_process_instance, model, test_data_reshaped, prob_dist
 

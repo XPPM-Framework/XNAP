@@ -1,5 +1,7 @@
 from __future__ import print_function, division
 from datetime import datetime
+from pathlib import Path
+
 import tensorflow as tf
 
 
@@ -41,11 +43,15 @@ def train(args, preprocessor):
     model.compile(loss={'act_output': 'categorical_crossentropy'}, optimizer=optimizer)
     early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
 
-    model_checkpoint = tf.keras.callbacks.ModelCheckpoint('%sca_%s_%s_%s.h5' % (
+
+    model_save_path = Path('%sca_%s_%s_%s.h5' % (
         args.model_dir,
         args.task,
         args.data_set[0:len(args.data_set) - 4],
-        preprocessor.data_structure['support']['iteration_cross_validation']),
+        preprocessor.data_structure['support']['iteration_cross_validation']))
+    print(f"Saving model to {model_save_path}")
+
+    model_checkpoint = tf.keras.callbacks.ModelCheckpoint(model_save_path,
                                                           monitor='val_loss',
                                                           verbose=0,
                                                           save_best_only=True,
