@@ -19,13 +19,17 @@ if __name__ == '__main__':
     utils.clear_measurement_file(args)
     log_params: dict = json.loads(args.log_params)
 
-    print(args)
+    settings_path = Path(args.model_path).parent / "settings.json"\
+        if args.model_path else Path(args.model_dir) / "settings.json"
+    settings_path.parent.mkdir(parents=True, exist_ok=True)
 
     # explanation mode for nap
     if args.explain:
-        preprocessor = Preprocessor(args)
-
-        event_log_size_limit = 100
+        if settings_path.exists():
+            settings = json.loads(settings_path.read_text())
+            preprocessor = Preprocessor(settings)
+        else:
+            preprocessor = Preprocessor(args)
 
         #event_log = pd.read_csv(args.data_dir + args.data_set, sep=";", quotechar='|')
         event_log = pd.read_csv(args.data_dir + args.data_set)
@@ -33,7 +37,7 @@ if __name__ == '__main__':
 
         unique_activities = event_log[log_params.get("activity_key", "event")].unique()
 
-        event_log = event_log[:event_log_size_limit]
+        event_log = event_log[:args.log_limit]
 
         #prefix_heatmaps: str = ""
         predictions = []
@@ -79,8 +83,10 @@ if __name__ == '__main__':
 
     # validation mode for nap
     elif not args.explain:
-
         preprocessor = Preprocessor(args)
+        with open(settings_path, "w") as settings_file:
+            json.dump(preprocessor.get_pure_dict(), settings_file)
+            print(f"Saved settings to {settings_path.resolve()}")
 
         if args.cross_validation:
             for iteration_cross_validation in range(0, args.num_folds):
