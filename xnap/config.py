@@ -10,10 +10,11 @@ def load():
     parser.add_argument('--task', default="nap")
     parser.add_argument('--data_set', default="helpdesk.csv")
     parser.add_argument('--data_dir', default="./data/")
-    parser.add_argument('--log_params', default="{}")  # Force a certain model to be used when explaining
+    parser.add_argument('--log_params', default="{}")
     parser.add_argument('--model_dir', default="nap/models/")
     parser.add_argument('--result_dir', default="./results/")
     parser.add_argument('--model_path', default=None)  # Force a certain model to be used when explaining
+    parser.add_argument('--log_limit', default=-1)  # Limits the size of the explained event log
 
     # parameters for explanation
     parser.add_argument('--explain', default=False, type=utils.str2bool)
