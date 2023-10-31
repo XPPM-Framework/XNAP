@@ -51,39 +51,41 @@ class Preprocessor(object):
     }
 
     def __init__(self, args):
+        if isinstance(args, dict):
+            self.data_structure = args
+        else:
+            utils.llprint("Initialization ... \n")
+            self.data_structure['support']['num_folds'] = args.num_folds
+            self.data_structure['support']['data_dir'] = args.data_dir + args.data_set
+            self.get_sequences_from_eventlog()
+            self.data_structure['support']['elements_per_fold'] = \
+                int(round(
+                    self.data_structure['meta']['num_process_instances'] / self.data_structure['support']['num_folds']))
 
-        utils.llprint("Initialization ... \n")
-        self.data_structure['support']['num_folds'] = args.num_folds
-        self.data_structure['support']['data_dir'] = args.data_dir + args.data_set
-        self.get_sequences_from_eventlog()
-        self.data_structure['support']['elements_per_fold'] = \
-            int(round(
-                self.data_structure['meta']['num_process_instances'] / self.data_structure['support']['num_folds']))
+            # add end marker of process instance
+            self.data_structure['data']['process_instances'] = list(
+                map(lambda x: x + ['!'], self.data_structure['data']['process_instances']))
+            self.data_structure['meta']['max_length_process_instance'] = max(
+                map(lambda x: len(x), self.data_structure['data']['process_instances']))
 
-        # add end marker of process instance
-        self.data_structure['data']['process_instances'] = list(
-            map(lambda x: x + ['!'], self.data_structure['data']['process_instances']))
-        self.data_structure['meta']['max_length_process_instance'] = max(
-            map(lambda x: len(x), self.data_structure['data']['process_instances']))
+            # structures for predicting next activities
+            self.data_structure['support']['event_labels'] = list(
+                map(lambda x: set(x), self.data_structure['data']['process_instances']))
+            self.data_structure['support']['event_labels'] = list(
+                set().union(*self.data_structure['support']['event_labels']))
+            self.data_structure['support']['event_labels'].sort()
+            self.data_structure['support']['event_types'] = copy.copy(self.data_structure['support']['event_labels'])
+            self.data_structure['support']['map_event_label_to_event_id'] = dict(
+                (c, i) for i, c in enumerate(self.data_structure['support']['event_labels']))
+            self.data_structure['support']['map_event_id_to_event_label'] = dict(
+                (i, c) for i, c in enumerate(self.data_structure['support']['event_labels']))
+            self.data_structure['support']['map_event_type_to_event_id'] = dict(
+                (c, i) for i, c in enumerate(self.data_structure['support']['event_types']))
+            self.data_structure['support']['map_event_id_to_event_type'] = dict(
+                (i, c) for i, c in enumerate(self.data_structure['support']['event_types']))
+            self.data_structure['meta']['num_event_ids'] = len(self.data_structure['support']['event_labels'])
 
-        # structures for predicting next activities
-        self.data_structure['support']['event_labels'] = list(
-            map(lambda x: set(x), self.data_structure['data']['process_instances']))
-        self.data_structure['support']['event_labels'] = list(
-            set().union(*self.data_structure['support']['event_labels']))
-        self.data_structure['support']['event_labels'].sort()
-        self.data_structure['support']['event_types'] = copy.copy(self.data_structure['support']['event_labels'])
-        self.data_structure['support']['map_event_label_to_event_id'] = dict(
-            (c, i) for i, c in enumerate(self.data_structure['support']['event_labels']))
-        self.data_structure['support']['map_event_id_to_event_label'] = dict(
-            (i, c) for i, c in enumerate(self.data_structure['support']['event_labels']))
-        self.data_structure['support']['map_event_type_to_event_id'] = dict(
-            (c, i) for i, c in enumerate(self.data_structure['support']['event_types']))
-        self.data_structure['support']['map_event_id_to_event_type'] = dict(
-            (i, c) for i, c in enumerate(self.data_structure['support']['event_types']))
-        self.data_structure['meta']['num_event_ids'] = len(self.data_structure['support']['event_labels'])
-
-        self.data_structure['meta']['num_features'] = len(self.data_structure['support']['event_labels'])
+            self.data_structure['meta']['num_features'] = len(self.data_structure['support']['event_labels'])
 
         args.dim = len(self.data_structure['support']['event_labels'])
 
@@ -91,6 +93,21 @@ class Preprocessor(object):
             self.set_indices_k_fold_validation()
         else:
             self.set_indices_split_validation(args)
+
+    def get_pure_dict(self) -> dict:
+        """
+        Get a pure dict representation of self.data_structure which can be json serialized.
+        """
+        from copy import deepcopy
+        pure_dict = deepcopy(self.data_structure)
+        pure_dict['support']['train_index_per_fold'] = []#[[int(i) for i in x] for x in pure_dict["support"]["train_index_per_fold"]]
+        pure_dict['support']['test_index_per_fold'] = []#[[int(i) for i in x] for x in pure_dict["support"]["test_index_per_fold"]]
+        pure_dict['data']['train']['features_data'] = []
+        pure_dict['data']['train']['labels'] = []
+        pure_dict['data']['test']['process_instances'] = []
+        pure_dict['data']['test']['event_ids'] = []
+
+        return pure_dict
 
     def get_sequences_from_eventlog(self):
         """
@@ -245,7 +262,7 @@ class Preprocessor(object):
         """
         Crops prefixes out of process instances.
         :param process_instances:
-        :return: cropped process instances, next events
+        :return: Cropped process instances, next events
         """
 
         cropped_process_instances = []
