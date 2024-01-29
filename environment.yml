@@ -1,0 +1,15 @@
+name: ma-framework
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - tensorflow==2.3.0
+  - arrow==0.17.0
+  - matplotlib==3.3.*
+  - numpy==1.18.5
+  - scipy==1.9.3
+  - scikit-learn==0.23.*
+  - tqdm==4.65.0
+  - typer==0.9.0
+  - pip:
+      - -e .
