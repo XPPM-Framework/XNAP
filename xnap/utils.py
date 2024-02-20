@@ -149,14 +149,16 @@ def get_output_value(_mode, _index_fold, _output, measure, args):
         return avg(_output[measure])
 
 
-def write_output(args, _output, index_fold):
+def write_output(args, _output, index_fold, result_dir_path: str):
+    result_file_path = Path(result_dir_path) / f"output_{args.data_set[:-4]}.csv"
 
-    with open('./%s%soutput_%s.csv' % (args.task, args.result_dir[1:], args.data_set[:-4]), mode='a',
-              newline='') as file:
+    print(f"Write output to {str(result_file_path)}")
+
+    with open(result_file_path, mode='a', newline='') as file:
         writer = csv.writer(file, delimiter=';', quoting=csv.QUOTE_NONE, escapechar=' ')
 
         # if file is empty
-        if os.stat('./%s%soutput_%s.csv' % (args.task, args.result_dir[1:], args.data_set[:-4])).st_size == 0:
+        if os.stat(result_file_path).st_size == 0:
             writer.writerow(
                 ["experiment", "mode", "validation", "accuracy", "precision", "recall", "f1-score", "auc-prc",
                  "training-time",

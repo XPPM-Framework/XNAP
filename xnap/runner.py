@@ -19,7 +19,8 @@ if __name__ == '__main__':
     utils.clear_measurement_file(args)
     log_params: dict = json.loads(args.log_params)
 
-    settings_path = Path(args.model_path).parent / "settings.json"\
+    Path(args.model_dir).mkdir(parents=True, exist_ok=True)
+    settings_path = Path(args.model_path).parent / f"settings.json"\
         if args.model_path else Path(args.model_dir) / "settings.json"
     settings_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -28,8 +29,10 @@ if __name__ == '__main__':
         if settings_path.exists():
             settings = json.loads(settings_path.read_text())
             preprocessor = Preprocessor(settings)
+            print(f"Read settings from {settings_path.resolve()}")
         else:
             preprocessor = Preprocessor(args)
+            print(f"Took settings from args because not found in {settings_path}")
 
         #event_log = pd.read_csv(args.data_dir + args.data_set, sep=";", quotechar='|')
         event_log = pd.read_csv(args.data_dir + args.data_set)
@@ -37,7 +40,9 @@ if __name__ == '__main__':
 
         unique_activities = event_log[log_params.get("activity_key", "event")].unique()
 
-        event_log = event_log[:args.log_limit]
+        if int(args.log_limit) > 0:
+            print(f"Limiting log to {args.log_limit} entries")
+            event_log = event_log[:int(args.log_limit)]
 
         #prefix_heatmaps: str = ""
         predictions = []
@@ -97,10 +102,10 @@ if __name__ == '__main__':
 
                 output = utils.get_output(args, preprocessor, output)
                 utils.print_output(args, output, iteration_cross_validation)
-                utils.write_output(args, output, iteration_cross_validation)
+                utils.write_output(args, output, iteration_cross_validation, args.result_dir)
 
             utils.print_output(args, output, iteration_cross_validation + 1)
-            utils.write_output(args, output, iteration_cross_validation + 1)
+            utils.write_output(args, output, iteration_cross_validation + 1, args.result_dir)
 
         else:
             output["training_time_seconds"].append(train.train(args, preprocessor))
@@ -108,7 +113,7 @@ if __name__ == '__main__':
 
             output = utils.get_output(args, preprocessor, output)
             utils.print_output(args, output, -1)
-            utils.write_output(args, output, -1)
+            utils.write_output(args, output, -1, args.result_dir)
 
     else:
         print("No mode selected ...")

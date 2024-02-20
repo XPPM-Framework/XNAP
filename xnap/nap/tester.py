@@ -29,7 +29,7 @@ def test_prefix(args, preprocessor, process_instance, prefix_size, *, model_path
     if model_path is None:
         model = load_model('%sca_%s_%s_%s.h5' % (
                         args.model_dir,
-                        args.task,
+
                         args.data_set[0:len(args.data_set) - 4], model_index))
     else:
         print(model_path)

@@ -75,24 +75,26 @@ class Preprocessor(object):
                 set().union(*self.data_structure['support']['event_labels']))
             self.data_structure['support']['event_labels'].sort()
             self.data_structure['support']['event_types'] = copy.copy(self.data_structure['support']['event_labels'])
-            self.data_structure['support']['map_event_label_to_event_id'] = dict(
-                (c, i) for i, c in enumerate(self.data_structure['support']['event_labels']))
-            self.data_structure['support']['map_event_id_to_event_label'] = dict(
-                (i, c) for i, c in enumerate(self.data_structure['support']['event_labels']))
-            self.data_structure['support']['map_event_type_to_event_id'] = dict(
-                (c, i) for i, c in enumerate(self.data_structure['support']['event_types']))
-            self.data_structure['support']['map_event_id_to_event_type'] = dict(
-                (i, c) for i, c in enumerate(self.data_structure['support']['event_types']))
-            self.data_structure['meta']['num_event_ids'] = len(self.data_structure['support']['event_labels'])
 
-            self.data_structure['meta']['num_features'] = len(self.data_structure['support']['event_labels'])
+            args.dim = len(self.data_structure['support']['event_labels'])
 
-        args.dim = len(self.data_structure['support']['event_labels'])
+            if args.cross_validation:
+                self.set_indices_k_fold_validation()
+            else:
+                self.set_indices_split_validation(args)
 
-        if args.cross_validation:
-            self.set_indices_k_fold_validation()
-        else:
-            self.set_indices_split_validation(args)
+        # Computed attributes
+        self.data_structure['support']['map_event_label_to_event_id'] = dict(
+            (c, i) for i, c in enumerate(self.data_structure['support']['event_labels']))
+        self.data_structure['support']['map_event_id_to_event_label'] = dict(
+            (i, c) for i, c in enumerate(self.data_structure['support']['event_labels']))
+        self.data_structure['support']['map_event_type_to_event_id'] = dict(
+            (c, i) for i, c in enumerate(self.data_structure['support']['event_types']))
+        self.data_structure['support']['map_event_id_to_event_type'] = dict(
+            (i, c) for i, c in enumerate(self.data_structure['support']['event_types']))
+        self.data_structure['meta']['num_event_ids'] = len(self.data_structure['support']['event_labels'])
+
+        self.data_structure['meta']['num_features'] = len(self.data_structure['support']['event_labels'])
 
     def get_pure_dict(self) -> dict:
         """
@@ -218,7 +220,7 @@ class Preprocessor(object):
         Performs k fold cross-validation.
         """
 
-        kFold = KFold(n_splits=self.data_structure['support']['num_folds'], random_state=0, shuffle=False)
+        kFold = KFold(n_splits=self.data_structure['support']['num_folds'])
 
         for train_indices, test_indices in kFold.split(self.data_structure['data']['process_instances']):
             self.data_structure['support']['train_index_per_fold'].append(train_indices)
