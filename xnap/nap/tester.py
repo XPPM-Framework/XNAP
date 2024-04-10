@@ -32,7 +32,6 @@ def test_prefix(args, preprocessor, process_instance, prefix_size, *, model_path
 
                         args.data_set[0:len(args.data_set) - 4], model_index))
     else:
-        print(model_path)
         model = load_model(model_path)
 
     cropped_process_instance = preprocessor.get_cropped_instance(prefix_size, process_instance)
