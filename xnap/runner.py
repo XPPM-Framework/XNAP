@@ -27,12 +27,13 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
-def explain_trace(trace:DataFrame, log_params, preprocessor, args) -> DataFrame:
+def explain_trace(trace: DataFrame, log_params, preprocessor, args) -> DataFrame:
     process_instance = [*trace[log_params.get("activity_key", "event")].to_list(), "!"]
     #process_instance = preprocessor.get_random_process_instance(args.rand_lower_bound, args.rand_upper_bound)
 
     # Skip prediction and explanation for first event
     predictions = [None]
+    ground_truths = [None]
     temporal_explanations = [[]]
     for prefix_index in range(2, len(process_instance)):
         # next activity prediction
@@ -54,9 +55,11 @@ def explain_trace(trace:DataFrame, log_params, preprocessor, args) -> DataFrame:
         #predictions.append(predicted_act_class_str)
         #temporal_explanations.append(list(R_words))
         predictions.append(predicted_act_class_str)
+        ground_truths.append(target_act_class_str)
         temporal_explanations.append(list(R_words))
 
     trace["prediction"] = predictions
+    trace["ground_truth"] = ground_truths
     trace["explanation"] = temporal_explanations
     # Force a garbage collection because of a Tensorflow memory leak problem
     del model
@@ -151,6 +154,7 @@ def main():
             processed_chunks.append(explained_log_chunk)
 
         explained_log = pd.concat(processed_chunks)
+        print("Explained log columns: ", explained_log.columns)
         explanation_path = Path(args.task) / args.result_dir / "local_explanations.csv"
         explanation_path.parent.mkdir(parents=True, exist_ok=True)
         explained_log.to_csv(explanation_path, index=False)
