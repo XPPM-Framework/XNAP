@@ -122,7 +122,8 @@ class Preprocessor(object):
         output = True
 
         file = open(self.data_structure['support']['data_dir'], 'r')
-        reader = csv.reader(file, delimiter=';', quotechar='|')
+        dialect = csv.Sniffer().sniff(file.read(1024))
+        reader = csv.reader(file, dialect)
         if len(next(reader, None)) == 1:
             reader = csv.reader(file)
             next(reader, None)
