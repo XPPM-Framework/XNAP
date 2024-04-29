@@ -1,0 +1,25 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Train - Helpdesk17" type="PythonConfigurationType" factoryName="Python">
+    <module name="XNAP" />
+    <option name="ENV_FILES" value="" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="PARENT_ENVS" value="true" />
+    <envs>
+      <env name="PYTHONUNBUFFERED" value="1" />
+    </envs>
+    <option name="SDK_HOME" value="" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../framework/methods/XNAP/" />
+    <option name="IS_MODULE_SDK" value="true" />
+    <option name="ADD_CONTENT_ROOTS" value="true" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../framework/methods/XNAP/xnap/runner.py" />
+    <option name="PARAMETERS" value="--data_dir $PROJECT_DIR$/../../framework/data/helpdesk_2017_simple/ --data_set helpdesk_2017_simple_train_0.7.csv --log_params &quot;{\&quot;case_id_key\&quot;:\&quot;Case ID\&quot;,\&quot;activity_key\&quot;:\&quot;Activity\&quot;,\&quot;timestamp_key\&quot;:\&quot;Complete Timestamp\&quot;,\&quot;timeformat\&quot;:\&quot;%Y-%m-%dT%H:%M:%S.%f\&quot;,\&quot;final_activities\&quot;:[\&quot;Closed\&quot;]}&quot; --model_path ./experiments/helpdesk_2017_simple/model.h5 --result_dir ./experiments/helpdesk_2017_simple/ --explain False --task nap --log_limit 50 --dnn_num_epoch 5" />
+    <option name="SHOW_COMMAND_LINE" value="false" />
+    <option name="EMULATE_TERMINAL" value="false" />
+    <option name="MODULE_MODE" value="false" />
+    <option name="REDIRECT_INPUT" value="false" />
+    <option name="INPUT_FILE" value="" />
+    <method v="2" />
+  </configuration>
+</component>
