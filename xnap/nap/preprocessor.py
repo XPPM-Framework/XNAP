@@ -50,14 +50,14 @@ class Preprocessor(object):
         }
     }
 
-    def __init__(self, args):
+    def __init__(self, args, log_params: dict):
         if isinstance(args, dict):
             self.data_structure = args
         else:
             utils.llprint("Initialization ... \n")
             self.data_structure['support']['num_folds'] = args.num_folds
             self.data_structure['support']['data_dir'] = args.data_dir + args.data_set
-            self.get_sequences_from_eventlog()
+            self.get_sequences_from_eventlog(log_params)
             self.data_structure['support']['elements_per_fold'] = \
                 int(round(
                     self.data_structure['meta']['num_process_instances'] / self.data_structure['support']['num_folds']))
@@ -111,7 +111,7 @@ class Preprocessor(object):
 
         return pure_dict
 
-    def get_sequences_from_eventlog(self):
+    def get_sequences_from_eventlog(self, log_params: dict):
         """
         Get sequences form event log.
         """
@@ -122,15 +122,22 @@ class Preprocessor(object):
         output = True
 
         file = open(self.data_structure['support']['data_dir'], 'r')
-        dialect = csv.Sniffer().sniff(file.read(1024))
+        dialect = csv.Sniffer().sniff(file.read(4096))
+        file.seek(0)
         reader = csv.reader(file, dialect)
-        if len(next(reader, None)) == 1:
+        header = next(reader, None)
+        if len(header) == 1 or len(header) == 2:  # Very stupid behavior of csv.Sniffer
+            file.seek(0)
             reader = csv.reader(file)
-            next(reader, None)
+            header = next(reader, None)
+
+        # get index of case id and activity columns
+        case_id_col_index = header.index(log_params['case_id_key'])
+        activity_col_index = header.index(log_params['activity_key'])
 
         for event in reader:
 
-            id_current_process_instance = event[0]
+            id_current_process_instance = event[case_id_col_index]
 
             if output:
                 output = False
@@ -146,7 +153,7 @@ class Preprocessor(object):
 
                 self.data_structure['meta']['num_process_instances'] += 1
 
-            process_instance.append(event[1])
+            process_instance.append(event[activity_col_index])
             first_event_of_process_instance = False
 
         file.close()

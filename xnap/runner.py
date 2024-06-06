@@ -62,7 +62,6 @@ def explain_trace(trace: DataFrame, log_params, preprocessor, args) -> DataFrame
     trace["ground_truth"] = ground_truths
     trace["explanation"] = temporal_explanations
     # Force a garbage collection because of a Tensorflow memory leak problem
-    del model
     gc.collect()
 
     return trace
@@ -123,10 +122,10 @@ def main():
     if args.explain:
         if settings_path.exists():
             settings = json.loads(settings_path.read_text())
-            preprocessor = Preprocessor(settings)
+            preprocessor = Preprocessor(settings, log_params)
             print(f"Read settings from {settings_path.resolve()}")
         else:
-            preprocessor = Preprocessor(args)
+            preprocessor = Preprocessor(args, log_params)
             print(f"Took settings from args because not found in {settings_path}")
 
         #event_log = pd.read_csv(args.data_dir + args.data_set, sep=";", quotechar='|')
@@ -162,7 +161,7 @@ def main():
 
     # validation mode for nap
     elif not args.explain:
-        preprocessor = Preprocessor(args)
+        preprocessor = Preprocessor(args, log_params)
         with open(settings_path, "w") as settings_file:
             json.dump(preprocessor.get_pure_dict(), settings_file)
             print(f"Saved settings to {settings_path.resolve()}")
